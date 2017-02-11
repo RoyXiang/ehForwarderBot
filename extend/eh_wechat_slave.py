@@ -67,3 +67,14 @@ class WechatExChannel(WeChatChannel):
         mobj.text = ""
         mobj.type = MsgType.Link
         return mobj
+
+    def send_message(self, msg):
+        if msg.type in [MsgType.Text, MsgType.Link] and msg.target:
+            UserName = self.get_UserName(msg.destination['uid'])
+            if not UserName:
+                raise EFBChatNotFound
+            if not str(UserName).startswith('@@'):
+                msg.target = None
+            else:
+                msg.target['type'] = TargetType.Member
+        super().send_message(msg)
