@@ -4,6 +4,7 @@ import mimetypes
 import xmltodict
 
 from channel import EFBMsg, MsgType
+from functools import lru_cache
 from plugins.eh_wechat_slave import WeChatChannel, wechat_msg_meta
 
 
@@ -67,6 +68,12 @@ class WechatExChannel(WeChatChannel):
         mobj.text = ""
         mobj.type = MsgType.Link
         return mobj
+
+    @lru_cache(maxsize=128)
+    def search_user(self, UserName=None, uid=None, uin=None, name=None, ActualUserName=None, refresh=False):
+        if refresh:
+            self.search_user.cache_clear()
+        return super().search_user(UserName, uid, uin, name, ActualUserName, refresh)
 
     def send_message(self, msg):
         if msg.type in [MsgType.Text, MsgType.Link] and msg.target:
