@@ -2,7 +2,6 @@ import os
 import inspect
 import logging
 import datetime
-from functools import lru_cache
 from peewee import *
 from playhouse.migrate import *
 
@@ -74,9 +73,7 @@ def add_chat_assoc(master_uid, slave_uid, multiple_slave=False):
     if not multiple_slave:
         remove_chat_assoc(master_uid=master_uid)
     remove_chat_assoc(slave_uid=slave_uid)
-    model = ChatAssoc.create(master_uid=master_uid, slave_uid=slave_uid)
-    self.get_chat_assoc.cache_clear()
-    return model
+    return ChatAssoc.create(master_uid=master_uid, slave_uid=slave_uid)
 
 
 def remove_chat_assoc(master_uid=None, slave_uid=None):
@@ -92,16 +89,13 @@ def remove_chat_assoc(master_uid=None, slave_uid=None):
         if bool(master_uid) == bool(slave_uid):
             raise ValueError("Only one parameter is to be provided.")
         elif master_uid:
-            num = ChatAssoc.delete().where(ChatAssoc.master_uid == master_uid).execute()
+            return ChatAssoc.delete().where(ChatAssoc.master_uid == master_uid).execute()
         elif slave_uid:
-            num = ChatAssoc.delete().where(ChatAssoc.slave_uid == slave_uid).execute()
-        self.get_chat_assoc.cache_clear()
-        return num
+            return ChatAssoc.delete().where(ChatAssoc.slave_uid == slave_uid).execute()
     except DoesNotExist:
         return 0
 
 
-@lru_cache(maxsize=128)
 def get_chat_assoc(master_uid=None, slave_uid=None):
     """
     Get chat association (chat link) information.
