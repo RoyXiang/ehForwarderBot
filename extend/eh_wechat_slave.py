@@ -89,12 +89,15 @@ class WechatExChannel(WeChatChannel):
             else:
                 msg.target['type'] = TargetType.Member
         elif msg.type == MsgType.Image and msg.mime == 'image/gif':
-            path = msg.path.rsplit('.', 1)[0]
-            if os.path.isfile(path):
-                try:
-                    os.remove(msg.path)
-                except FileNotFoundError:
-                    pass
-                msg.type = MsgType.Video
-                msg.path = path
+            mp4 = msg.path.rsplit('.', 1)[0]
+            if os.path.isfile(mp4):
+                if os.path.isfile(msg.path) and os.path.getsize(msg.path) <= 5 * 2 ** 20:
+                    os.remove(mp4)
+                else:
+                    try:
+                        os.remove(msg.path)
+                    except FileNotFoundError:
+                        pass
+                    msg.type = MsgType.Video
+                    msg.path = mp4
         super().send_message(msg)
