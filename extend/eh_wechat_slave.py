@@ -40,38 +40,27 @@ class WechatExChannel(WeChatChannel):
 
     @wechat_msg_meta
     def wechat_link_msg(self, msg):
+        # filter messages from massive platform only
         if not self.itchat.search_mps(userName=msg['FromUserName']):
             super().wechat_link_msg(msg)
             return
-        # initiate object
-        mobj = EFBMsg(self)
         # parse XML
         itchat.utils.emoji_formatter(msg, 'Content')
         xml_data = msg['Content']
         data = xmltodict.parse(xml_data)
-        # set attributes
-        appmsg = data.get('msg', {}).get('appmsg', {})
-        mobj.attributes = {
-            "title": appmsg.get('title', None),
-            "description": appmsg.get('des', None),
-            "image": appmsg.get('thumburl', None),
-            "url": appmsg.get('url', None),
-        }
         # filter message with images or extra links
+        appmsg = data.get('msg', {}).get('appmsg', {})
         extra_links = appmsg.get('mmreader', {}).get('category', {}).get('item', [])
-        if mobj.attributes['image'] or (isinstance(extra_links, list) and len(extra_links) > 0):
+        if appmsg.get('thumburl', None) or (isinstance(extra_links, list) and len(extra_links) > 0):
             return
-        # check message url
-        if mobj.attributes['url'] is None:
-            txt = mobj.attributes['title'] or ''
-            txt += mobj.attributes['description'] or ''
-            msg['Text'] = txt
-            self.wechat_text_msg(msg)
-            return
-        # format text
-        mobj.text = ""
-        mobj.type = MsgType.Link
-        return mobj
+        # send message
+        base_data = [
+            appmsg.get('title', None),
+            appmsg.get('des', None),
+            appmsg.get('thumburl', None),
+            appmsg.get('url', None)
+        ]
+        self.wechat_raw_link_msg(msg, *base_data)
 
     @lru_cache(maxsize=128)
     def search_user(self, UserName=None, uid=None, uin=None, name=None, ActualUserName=None, refresh=False):
