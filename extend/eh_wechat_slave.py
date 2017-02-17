@@ -40,6 +40,9 @@ class WechatExChannel(WeChatChannel):
 
     @wechat_msg_meta
     def wechat_link_msg(self, msg):
+        if not self.itchat.search_mps(userName=msg['FromUserName']):
+            super().wechat_link_msg(msg)
+            return
         # initiate object
         mobj = EFBMsg(self)
         # parse XML
