@@ -1,6 +1,8 @@
 # coding=utf-8
 import telegram
 import telegram.ext
+import telegram.error
+import telegram.constants
 import config
 import datetime
 import utils
@@ -77,6 +79,7 @@ class TelegramChannel(EFBChannel):
     msg_storage = {}
     me = None
     _stop_polling = False
+    timeout_count = 0
 
     # Constants
     TYPE_DICT = {
@@ -260,6 +263,7 @@ class TelegramChannel(EFBChannel):
             self.logger.debug("%s, process_msg_step_2", xid)
             append_last_msg = False
             if msg.type == MsgType.Text:
+                self.bot.bot.send_chat_action(tg_dest, telegram.ChatAction.TYPING)
                 parse_mode = "HTML" if self._flag("text_as_html", False) else None
                 if tg_chat_assoced:
                     last_msg = db.get_last_msg_from_chat(tg_dest)
@@ -298,6 +302,7 @@ class TelegramChannel(EFBChannel):
                     self.logger.debug("%s, process_msg_step_3_0_4, tg_msg = %s", xid, tg_msg)
                 self.logger.debug("%s, process_msg_step_3_1", xid)
             elif msg.type == MsgType.Link:
+                self.bot.bot.send_chat_action(tg_dest, telegram.ChatAction.TYPING)
                 thumbnail = urllib.parse.quote(msg.attributes["image"] or "", safe="?=&#:/")
                 thumbnail = "<a href=\"%s\">🔗</a>" % thumbnail if thumbnail else "🔗"
                 text = "%s <a href=\"%s\">%s</a>\n%s" % \
@@ -317,6 +322,7 @@ class TelegramChannel(EFBChannel):
                         text += "\n\n" + msg.text
                     tg_msg = self.bot.bot.send_message(tg_dest, text=msg_template % msg.text)
             elif msg.type in [MsgType.Image, MsgType.Sticker]:
+                self.bot.bot.send_chat_action(tg_dest, telegram.ChatAction.UPLOAD_PHOTO)
                 self.logger.debug("%s, process_msg_step_3_2", xid)
                 self.logger.debug("Received %s\nPath: %s\nMIME: %s", msg.type, msg.path, msg.mime)
                 self.logger.debug("Path: %s\nSize: %s", msg.path, os.stat(msg.path).st_size)
@@ -340,6 +346,7 @@ class TelegramChannel(EFBChannel):
                     os.remove(msg.path)
                 self.logger.debug("%s, process_msg_step_3_3", xid)
             elif msg.type == MsgType.File:
+                self.bot.bot.send_chat_action(tg_dest, telegram.ChatAction.UPLOAD_DOCUMENT)
                 if os.stat(msg.path).st_size == 0:
                     os.remove(msg.path)
                     tg_msg = self.bot.bot.send_message(tg_dest,
@@ -354,6 +361,7 @@ class TelegramChannel(EFBChannel):
                                                         filename=file_name)
                     os.remove(msg.path)
             elif msg.type == MsgType.Audio:
+                self.bot.bot.send_chat_action(tg_dest, telegram.ChatAction.RECORD_AUDIO)
                 if os.stat(msg.path).st_size == 0:
                     os.remove(msg.path)
                     return self.bot.bot.send_message(tg_dest,
@@ -378,12 +386,14 @@ class TelegramChannel(EFBChannel):
                     os.remove("%s.ogg" % msg.path)
                 os.remove(msg.path)
             elif msg.type == MsgType.Location:
+                self.bot.bot.send_chat_action(tg_dest, telegram.ChatAction.FIND_LOCATION)
                 self.logger.info("---\nsending venue\nlat: %s, long: %s\ntitle: %s\naddr: %s",
                                  msg.attributes['latitude'], msg.attributes['longitude'], msg.text, msg_template % "")
                 tg_msg = self.bot.bot.sendVenue(tg_dest, latitude=msg.attributes['latitude'],
                                                 longitude=msg.attributes['longitude'], title=msg.text,
                                                 address=msg_template % "")
             elif msg.type == MsgType.Video:
+                self.bot.bot.send_chat_action(tg_dest, telegram.ChatAction.UPLOAD_VIDEO)
                 if os.stat(msg.path).st_size == 0:
                     os.remove(msg.path)
                     return self.bot.bot.send_message(tg_dest, msg_template % ("Error: Empty %s recieved" % msg.type))
@@ -392,6 +402,7 @@ class TelegramChannel(EFBChannel):
                 tg_msg = self.bot.bot.sendVideo(tg_dest, msg.file, caption=msg_template % msg.text)
                 os.remove(msg.path)
             elif msg.type == MsgType.Command:
+                self.bot.bot.send_chat_action(tg_dest, telegram.ChatAction.TYPING)
                 buttons = []
                 for i, ival in enumerate(msg.attributes['commands']):
                     buttons.append([telegram.InlineKeyboardButton(ival['name'], callback_data=str(i))])
@@ -402,6 +413,7 @@ class TelegramChannel(EFBChannel):
                                                                             "text": msg_template % msg.text,
                                                                             "commands": msg.attributes['commands']}
             else:
+                self.bot.bot.send_chat_action(tg_dest, telegram.ChatAction.TYPING)
                 tg_msg = self.bot.bot.send_message(tg_dest, msg_template % "Unsupported incoming message type. (UT01)")
             self.logger.debug("%s, process_msg_step_4", xid)
             if msg.source in (MsgSource.User, MsgSource.Group):
@@ -537,6 +549,7 @@ class TelegramChannel(EFBChannel):
         """
         if not message_id:
             message_id = bot.send_message(chat_id, "Processing...").message_id
+        bot.send_chat_action(chat_id, telegram.ChatAction.TYPING)
 
         msg_text = "Please choose the chat you want to link with ...\n\nLegend:\n"
         legend, chat_btn_list = self.slave_chats_pagination("%s.%s" % (chat_id, message_id), offset, filter=filter)
@@ -686,6 +699,7 @@ class TelegramChannel(EFBChannel):
         """
         if not message_id:
             message_id = bot.send_message(chat_id, text="Processing...").message_id
+        bot.send_chat_action(chat_id, telegram.ChatAction.TYPING)
 
         legend, chat_btn_list = self.slave_chats_pagination("%s.%s" % (chat_id, message_id), offset, filter=filter)
         msg_text = "Choose a chat you want to start with...\n\nLegend:\n"
@@ -1023,7 +1037,7 @@ class TelegramChannel(EFBChannel):
             os.makedirs(path)
         size = getattr(file_obj, "file_size", None)
         file_id = file_obj.file_id
-        if size and size > 20 * 1024 ** 2:
+        if size and size > telegram.constants.MAX_FILESIZE_DOWNLOAD:
             raise EFBMessageError("Attachment is too large. Maximum 20 MB. (AT01)")
         f = self.bot.bot.getFile(file_id)
         fname = "%s_%s_%s_%s" % (msg_type, tg_msg.chat.id, tg_msg.message_id, int(time.time()))
@@ -1220,7 +1234,8 @@ class TelegramChannel(EFBChannel):
 
     def polling_from_tg(self):
         """
-        Poll message from Telegram Bot API. Can be used to extend
+        Poll message from Telegram Bot API. Can be used to extend for webhook.
+        This method must NOT be blocking.
         """
         self.bot.start_polling(timeout=10)
 
@@ -1230,10 +1245,45 @@ class TelegramChannel(EFBChannel):
         Triggered by python-telegram-bot error callback.
         """
         if "Conflict: terminated by other long poll or webhook (409)" in str(error):
-            msg = 'Please immediately turn off all EFB instances.\nAnother bot instance or web-hook detected.'
-            self.logger.error(msg)
+            msg = 'Please immediately turn off all EFB instances.\nAnother bot instance or webhook detected.'
+            self.logger.critical(msg)
             bot.send_message(getattr(config, self.channel_id)['admins'][0], msg)
-        else:
+            return
+        try:
+            raise error
+        except telegram.error.Unauthorized:
+            self.logger.error("The bot is not authorised to send update:\n%s\n%s", str(update), str(error))
+        except telegram.error.BadRequest:
+            self.logger.error("Message request is invalid.\n%s\n%s", str(update), str(error))
+            bot.send_message(getattr(config, self.channel_id)['admins'][0],
+                             "Message request is invalid.\n%s\n<code>%s</code>)" %
+                             (html.escape(str(error)), html.escape(str(update))), parse_mode="HTML")
+        except telegram.error.TimedOut:
+            self.timeout_count += 1
+            self.logger.error("Poor internet connection detected.\nError count: %s\n\%s\nUpdate: %s",
+                              self.timeout_count, str(error), str(update))
+            if update is not None and isinstance(getattr(update, "message", None), telegram.Message):
+                update.message.reply_text("This message is not processed due to poor internet environment "
+                                          "of the server.\n"
+                                          "<code>%s</code>" % html.escape(str(error)), quote=True, parse_mode="HTML")
+            if self.timeout_count >= 10:
+                bot.send_message(getattr(config, self.channel_id)['admins'][0],
+                                 "<b>EFB Telegram Master channel</b>\n"
+                                 "You may have a poor internet connection on your server. "
+                                 "Currently %s time-out errors are detected.\n"
+                                 "For more details, please refer to the log." % (self.timeout_count),
+                                 parse_mode="HTML")
+        except telegram.error.ChatMigrated as e:
+            new_id = e.new_chat_id
+            old_id = update.message.chat_id
+            count = 0
+            for i in db.get_chat_assoc(master_uid="%s.%s" % (self.channel_id, old_id)):
+                db.remove_chat_assoc(slave_uid=i)
+                db.add_chat_assoc(master_uid="%s.%s" % (self.channel_id, new_id), slave_uid=i)
+                count += 1
+            bot.send_message(new_id, "Chat migration detected."
+                                     "All remote chats (%s) are now linked to this new group." % count)
+        except:
             try:
                 bot.send_message(getattr(config, self.channel_id)['admins'][0],
                                  "EFB Telegram Master channel encountered error <code>%s</code> "
@@ -1246,7 +1296,8 @@ class TelegramChannel(EFBChannel):
                                  "caused by update\n%s\n\n"
                                  "Report issue: https://github.com/blueset/ehForwarderBot/issues/new" %
                                  (html.escape(str(error)), html.escape(str(update))))
-            self.logger.error('ERROR! Update %s caused error %s' % (update, error))
+            self.logger.error('Unhandled telegram bot error!\n'
+                              'Update %s caused error %s' % (update, error))
 
     def _flag(self, key, value):
         """
