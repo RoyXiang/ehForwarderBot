@@ -5,6 +5,7 @@ import os
 import xmltodict
 
 from channel import EFBMsg, MsgType
+from channelExceptions import EFBMessageError
 from functools import lru_cache
 from plugins.eh_wechat_slave import WeChatChannel, wechat_msg_meta
 
@@ -98,8 +99,8 @@ class WechatExChannel(WeChatChannel):
             msg.path = path
         super().send_message(msg)
 
-    def _itchat_send_file(self, *args, **kwargs):
+    def _itchat_send_file(self, fileDir, toUserName=None, filename=None):
         try:
-            return self.itchat.send_file(*args, **kwargs)
+            return self.itchat.send_file(fileDir, toUserName=toUserName)
         except Exception as e:
             raise EFBMessageError(repr(e))
