@@ -85,6 +85,7 @@ celerybeat-schedule
 # virtualenv
 venv/
 ENV/
+.venv/
 
 # Spyder project settings
 .spyderproject
@@ -116,6 +117,13 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
+# Sublime
+*.sublime-*
+
+# macOS
+.DS_Store
+
+# EFB
 config.py
 test.py
 test.db
