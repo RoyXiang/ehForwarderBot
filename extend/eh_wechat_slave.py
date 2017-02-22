@@ -81,7 +81,7 @@ class WechatExChannel(WeChatChannel):
             else:
                 msg.target['type'] = TargetType.Member
         elif msg.type == MsgType.Image and msg.mime == 'image/gif':
-            if os.path.isfile(msg.path) and os.path.getsize(msg.path) <= 5 * 2 ** 20:
+            if os.path.isfile(msg.path) and os.path.getsize(msg.path) <= self.max_image_size:
                 super().send_message(msg)
                 return
             mp4 = msg.path.rsplit('.', 1)[0]
@@ -95,6 +95,8 @@ class WechatExChannel(WeChatChannel):
                 msg.path = mp4
             else:
                 raise EFBMessageError('Image sent is too large. (IS01)')
+        elif msg.type == MsgType.Image and msg.mime not in self.supported_image_types:
+            msg.type = MsgType.File
         elif msg.type == MsgType.Audio:
             filename = msg.filename or os.path.basename(msg.path)
             path = os.path.splitext(os.path.join('storage', self.channel_id, filename))[0] + '.mp3'
@@ -116,6 +118,9 @@ class WechatExChannel(WeChatChannel):
             os.rename(msg.path, path)
             # update message properties
             msg.path = path
+            if (msg.mime in self.supported_image_types
+                    and os.path.getsize(msg.path) <= self.max_image_size):
+                msg.type = MsgType.Image
         super().send_message(msg)
 
     def _itchat_send_file(self, fileDir, toUserName=None, filename=None):

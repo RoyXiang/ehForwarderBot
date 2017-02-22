@@ -113,6 +113,9 @@ class WeChatChannel(EFBChannel):
     done_reauth = threading.Event()
     _stop_polling = False
 
+    supported_image_types = ["image/bmp", "image/gif", "image/jpeg", "image/png"]
+    max_image_size = 5 * 2 ** 20
+
     def __init__(self, queue, mutex):
         super().__init__(queue, mutex)
         self.itchat = itchat.new_instance()
@@ -646,9 +649,9 @@ class WeChatChannel(EFBChannel):
             r = self._itchat_send_msg(msg.text, UserName)
         elif msg.type in [MsgType.Image, MsgType.Sticker]:
             self.logger.info("Image/Sticker %s, %s", msg.type, msg.path)
-            if msg.mime in ["image/gif", "image/jpeg"]:
+            if msg.mime in self.supported_image_types:
                 try:
-                    if os.path.getsize(msg.path) > 5 * 2 ** 20:
+                    if os.path.getsize(msg.path) > self.max_image_size:
                         raise EFBMessageError("Image sent is too large. (IS01)")
                     self.logger.debug("Sending %s (image) to ItChat.", msg.path)
                     r = self._itchat_send_image(msg.path, UserName)
