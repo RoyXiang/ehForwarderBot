@@ -89,4 +89,14 @@ class WechatExChannel(WeChatChannel):
                         pass
                     msg.type = MsgType.Video
                     msg.path = mp4
+        elif msg.type in (MsgType.File, MsgType.Audio):
+            path = os.path.join('storage', self.channel_id, msg.filename)
+            os.rename(msg.path, path)
+            msg.path = path
         super().send_message(msg)
+
+    def _itchat_send_file(self, *args, **kwargs):
+        try:
+            return self.itchat.send_file(*args, **kwargs)
+        except Exception as e:
+            raise EFBMessageError(repr(e))
