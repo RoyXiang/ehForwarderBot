@@ -8,6 +8,7 @@ from channel import EFBMsg, MsgType
 from channelExceptions import EFBMessageError
 from functools import lru_cache
 from moviepy.editor import VideoFileClip
+from PIL import Image
 from plugins.eh_wechat_slave import WeChatChannel, wechat_msg_meta
 from pydub import AudioSegment
 
@@ -97,6 +98,25 @@ class WechatExChannel(WeChatChannel):
                 raise EFBMessageError('Image sent is too large. (IS01)')
         elif msg.type == MsgType.Image and msg.mime not in self.supported_image_types:
             msg.type = MsgType.File
+        elif msg.type == MsgType.Sticker and msg.mime != 'image/gif':
+            img = Image.open(msg.path)
+            try:
+                alpha = img.split()[3]
+            except IndexError:
+                alpha = None
+            filename = os.path.basename(msg.path)
+            path = os.path.splitext(os.path.join('storage', self.channel_id, filename))[0] + '.gif'
+            if alpha:
+                mask = Image.eval(alpha, lambda a: 255 if a <= 128 else 0)
+                img = img.convert('RGB').convert('P', palette=Image.ADAPTIVE, colors=255)
+                img.paste(255, mask)
+                img.save(path, transparency=255)
+            else:
+                img.save(path)
+            os.remove(msg.path)
+            # update message properties
+            msg.mime = 'image/gif'
+            msg.path = path
         elif msg.type == MsgType.Audio:
             filename = msg.filename or os.path.basename(msg.path)
             path = os.path.splitext(os.path.join('storage', self.channel_id, filename))[0] + '.mp3'
@@ -118,9 +138,6 @@ class WechatExChannel(WeChatChannel):
             os.rename(msg.path, path)
             # update message properties
             msg.path = path
-            if (msg.mime in self.supported_image_types
-                    and os.path.getsize(msg.path) <= self.max_image_size):
-                msg.type = MsgType.Image
         super().send_message(msg)
 
     def _itchat_send_file(self, fileDir, toUserName=None, filename=None):
