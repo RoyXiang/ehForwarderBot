@@ -108,7 +108,7 @@ class TelegramChannel(EFBChannel):
             self.bot = telegram.ext.Updater(getattr(config, self.channel_id)['token'])
         except (AttributeError, KeyError):
             raise ValueError("Token is not properly defined. Please define it in `config.py`.")
-        mimetypes.init(files=["mimetypes"])
+        mimetypes.init()
         self.admins = getattr(config, self.channel_id)['admins']
         self.logger = logging.getLogger("plugins.%s.TelegramChannel" % self.channel_id)
         self.me = self.bot.bot.get_me()

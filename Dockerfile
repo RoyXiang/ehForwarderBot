@@ -9,6 +9,7 @@ RUN set -ex \
         && apk add --no-cache --virtual .run-deps \
                 ffmpeg \
                 libmagic \
+                mailcap \
                 python3 \
                 py3-certifi \
                 py3-numpy \
