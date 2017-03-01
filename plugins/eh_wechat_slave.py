@@ -330,15 +330,16 @@ class WeChatChannel(EFBChannel):
             return [{"UserName": sys_chat_id,
                      "NickName": "System (%s)" % sys_chat_id,
                      "RemarkName": "System (%s)" % sys_chat_id,
+                     "Alias": sys_chat_id,
                      "Uin": sys_chat_id}]
 
         for i in self.itchat.get_friends(refresh) + self.itchat.get_mps(refresh):
             data = {"nickname": self._wechat_html_unescape(i.get('NickName', None)),
                     "alias": self._wechat_html_unescape(i.get("RemarkName", None)),
+                    "account": i.get("Alias", None),
                     "uin": i.get("Uin", None)}
             if self.encode_uid(data) == uid or \
                             str(i.get('UserName', '')) == UserName or \
-                            str(i.get('AttrStatus', '')) == uid or \
                             str(i.get('Uin', '')) == uin or \
                             str(i.get('NickName', '')) == name or \
                             str(i.get('DisplayName', '')) == name:
@@ -352,6 +353,7 @@ class WeChatChannel(EFBChannel):
                 i = self.itchat.update_chatroom(i.get('UserName', ''))
             data = {"nickname": self._wechat_html_unescape(i.get('NickName', None)),
                     "alias": self._wechat_html_unescape(i.get("RemarkName", None)),
+                    "account": i.get("Alias", None),
                     "uin": i.get("Uin", None)}
             if self.encode_uid(data) == uid or \
                             str(i.get('Uin', '')) == uin or \
