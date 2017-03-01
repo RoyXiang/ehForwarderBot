@@ -22,8 +22,12 @@ RUN set -ex \
 COPY . /opt/ehForwarderBot
 
 RUN set -ex \
+        && apk add --no-cache --virtual .build-deps \
+                git \
+        && pip3 install pypng pyqrcode \
         && pip3 install -r /opt/ehForwarderBot/requirements.txt \
-        && rm -rf /root/.cache
+        && rm -rf /root/.cache \
+        && apk del .build-deps
 
 WORKDIR /opt/ehForwarderBot
 

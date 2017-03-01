@@ -6,6 +6,6 @@ python_telegram_bot>=5.3
 xmltodict
 Pillow
 python_magic
-itchat>=1.2.24
+-e git+https://github.com/RoyXiang/ItChat.git@80be887#egg=itchat==1.2.27
 python-daemon
 pyqrcode
