@@ -132,16 +132,4 @@ class WechatExChannel(WeChatChannel):
             msg.mime = 'audio/mpeg'
             msg.path = path
             msg.filename = os.path.basename(path)
-        elif msg.type == MsgType.File:
-            filename = msg.filename or os.path.basename(msg.path)
-            path = os.path.join('storage', self.channel_id, filename)
-            os.rename(msg.path, path)
-            # update message properties
-            msg.path = path
         super().send_message(msg)
-
-    def _itchat_send_file(self, fileDir, toUserName=None, filename=None):
-        try:
-            return self.itchat.send_file(fileDir, toUserName=toUserName)
-        except Exception as e:
-            raise EFBMessageError(repr(e))

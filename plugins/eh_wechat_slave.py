@@ -935,44 +935,9 @@ class WeChatChannel(EFBChannel):
         except Exception as e:
             raise EFBMessageError(repr(e))
 
-    def _itchat_send_file(self, *args, **kwargs):
-        def _itchat_send_fn(self, fileDir, toUserName=None, mediaId=None, filename=None):
-            from itchat.returnvalues import ReturnValue
-            from itchat import config
-            import os, time, json
-            if toUserName is None: toUserName = self.storageClass.userName
-            if mediaId is None:
-                r = self.upload_file(fileDir)
-                if r:
-                    mediaId = r['MediaId']
-                else:
-                    return r
-            fn = filename or os.path.basename(fileDir)
-            url = '%s/webwxsendappmsg?fun=async&f=json' % self.loginInfo['url']
-            data = {
-                'BaseRequest': self.loginInfo['BaseRequest'],
-                'Msg': {
-                    'Type': 6,
-                    'Content': ("<appmsg appid='wxeb7ec651dd0aefa9' sdkver=''><title>%s</title>" % fn +
-                                "<des></des><action></action><type>6</type><content></content><url></url><lowurl></lowurl>" +
-                                "<appattach><totallen>%s</totallen><attachid>%s</attachid>" % (
-                                    str(os.path.getsize(fileDir)), mediaId) +
-                                "<fileext>%s</fileext></appattach><extinfo></extinfo></appmsg>" % fn[1].replace('.',
-                                                                                                                '')),
-                    'FromUserName': self.storageClass.userName,
-                    'ToUserName': toUserName,
-                    'LocalID': int(time.time() * 1e4),
-                    'ClientMsgId': int(time.time() * 1e4), },
-                'Scene': 0, }
-            headers = {
-                'User-Agent': config.USER_AGENT,
-                'Content-Type': 'application/json;charset=UTF-8', }
-            r = self.s.post(url, headers=headers,
-                            data=json.dumps(data, ensure_ascii=False).encode('utf8'))
-            return ReturnValue(rawResponse=r)
-
+    def _itchat_send_file(self, fileDir, toUserName=None, filename=None):
         try:
-            return _itchat_send_fn(self.itchat, *args, **kwargs)
+            return self.itchat.send_file(fileDir, toUserName=toUserName, filename=filename)
         except Exception as e:
             raise EFBMessageError(repr(e))
 
