@@ -347,8 +347,6 @@ class WeChatChannel(EFBChannel):
                 i['DisplayName'] = self._wechat_html_unescape(i.get('DisplayName', ''))
                 result.append(i.copy())
         for i in self.itchat.get_chatrooms(refresh):
-            if not i['UserName'].startswith('@@'):
-                continue
             if not i.get('MemberList', ''):
                 i = self.itchat.update_chatroom(i.get('UserName', ''))
             data = {"nickname": self._wechat_html_unescape(i.get('NickName', None)),
@@ -733,8 +731,6 @@ class WeChatChannel(EFBChannel):
             l[-1]['Type'] = "User"
 
         for i in self.itchat.get_chatrooms(refresh):
-            if not i['UserName'].startswith('@@'):
-                continue
             l.append(i)
             l[-1]['Type'] = "Group"
 
@@ -892,8 +888,6 @@ class WeChatChannel(EFBChannel):
         if group:
             t = self.itchat.get_chatrooms(refresh)
             for i in t:
-                if not i['UserName'].startswith('@@'):
-                    continue
                 r.append({
                     'channel_name': self.channel_name,
                     'channel_id': self.channel_id,
