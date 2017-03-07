@@ -29,7 +29,7 @@ def wechat_msg_meta(func):
         mobj = func(self, msg, *args, **kwargs)
         if mobj is None:
             return
-        mobj.uid = msg.get("MsgId", time.time())
+        mobj.uid = msg.get("NewMsgId", time.time())
         me = msg['FromUserName'] == self.itchat.loginInfo['User']['UserName']
         logger.debug("me, %s", me)
         if me:
@@ -161,8 +161,8 @@ class WeChatChannel(EFBChannel):
             QR += "\nIf you cannot read the QR code above, " \
                   "please visit the following URL:\n" \
                   "https://login.weixin.qq.com/qrcode/" + uuid
+            self.qr_uuid = uuid
             return self.logger.critical(QR)
-        self.qr_uuid = uuid
 
     def master_qr_code(self, uuid, status, qrcode):
         status = int(status)
@@ -185,14 +185,14 @@ class WeChatChannel(EFBChannel):
             path = os.path.join("storage", self.channel_id)
             if not os.path.exists(path):
                 os.makedirs(path)
-            path = os.path.join(path, 'QR-%s.jpg' % int(time.time()))
+            path = os.path.join(path, 'QR-%s.png' % int(time.time()))
             self.logger.debug("master_qr_code file path: %s", path)
             qr_url = "https://login.weixin.qq.com/l/" + uuid
             QRCode(qr_url).png(path, scale=10)
             msg.text = 'Scan this QR Code with WeChat to continue.'
             msg.path = path
             msg.file = open(path, 'rb')
-            msg.mime = 'image/jpeg'
+            msg.mime = 'image/png'
         if status in (200, 201) or uuid != self.qr_uuid:
             self.queue.put(msg)
             self.qr_uuid = uuid
