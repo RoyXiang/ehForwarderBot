@@ -90,6 +90,10 @@ class WechatExChannel(WeChatChannel):
             self.search_user.cache_clear()
         return super().search_user(UserName, uid, uin, name, ActualUserName, refresh)
 
+    def reauth(self, command=False):
+        self.search_user.cache_clear()
+        return super().reauth(command)
+
     def send_message(self, msg):
         if msg.type in [MsgType.Text, MsgType.Link] and msg.target:
             UserName = self.get_UserName(msg.destination['uid'])
