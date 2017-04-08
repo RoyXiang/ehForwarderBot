@@ -332,19 +332,21 @@ class TelegramChannel(EFBChannel):
                         urllib.parse.quote(msg.attributes["url"], safe="?=&#:/"),
                         html.escape(msg.attributes["title"] or msg.attributes["url"]),
                         html.escape(msg.attributes["description"] or ""))
+                disable_web_page_preview = msg.attributes.get("disable_web_page_preview", False)
                 if msg.text:
                     text += "\n\n" + msg.text
                 try:
                     tg_msg = self.bot.bot.send_message(tg_dest,
                                                        text=msg_template + text,
-                                                       parse_mode="HTML")
+                                                       parse_mode="HTML",
+                                                       disable_web_page_preview=disable_web_page_preview)
                 except telegram.error.BadRequest:
                     text = "🔗 %s\n%s\n\n%s" % (html.escape(msg.attributes["title"] or ""),
                                                 html.escape(msg.attributes["description"] or ""),
                                                 urllib.parse.quote(msg.attributes["url"] or "", safe="?=&#:/"))
                     if msg.text:
                         text += "\n\n" + msg.text
-                    tg_msg = self.bot.bot.send_message(tg_dest, text=msg_template + msg.text)
+                    tg_msg = self.bot.bot.send_message(tg_dest, text=msg_template + msg.text, disable_web_page_preview=disable_web_page_preview)
             elif msg.type in [MsgType.Image, MsgType.Sticker]:
                 self.bot.bot.send_chat_action(tg_dest, telegram.ChatAction.UPLOAD_PHOTO)
                 self.logger.debug("%s, process_msg_step_3_2", xid)

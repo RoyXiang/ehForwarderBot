@@ -46,7 +46,7 @@ class WechatExChannel(WeChatChannel):
 
     def itchat_msg_register(self):
         self.itchat.msg_register(['Text'], isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_text_msg)
-        self.itchat.msg_register(['Sharing'], isFriendChat=True, isMpChat=True, isGroupChat=True)(self.wechat_link_msg)
+        self.itchat.msg_register(['Sharing'], isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_link_msg)
         self.itchat.msg_register(['Picture'], isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_picture_msg)
         self.itchat.msg_register(['Attachment'], isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_file_msg)
         self.itchat.msg_register(['Recording'], isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_voice_msg)
@@ -55,17 +55,14 @@ class WechatExChannel(WeChatChannel):
         self.itchat.msg_register(['Card'], isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_card_msg)
         self.itchat.msg_register(['Friends'], isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_friend_msg)
         self.itchat.msg_register(['Useless', 'Note'], isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_system_msg)
+        self.itchat.msg_register(['Sharing'], isFriendChat=False, isMpChat=True, isGroupChat=False)(self.wechat_mp_msg)
 
         @self.itchat.msg_register(["System"], isFriendChat=True, isMpChat=False, isGroupChat=True)
         def wc_msg_system_log(msg):
             self.logger.debug("WeChat \"System\" message:\n%s", repr(msg))
 
     @wechat_msg_meta
-    def wechat_link_msg(self, msg):
-        # filter messages from massive platform only
-        if not self.itchat.search_mps(userName=msg['FromUserName']):
-            super().wechat_link_msg(msg)
-            return
+    def wechat_mp_msg(self, msg):
         # parse XML
         itchat.utils.emoji_formatter(msg, 'Content')
         xml_data = msg['Content']
@@ -80,9 +77,29 @@ class WechatExChannel(WeChatChannel):
             appmsg.get('title', None),
             appmsg.get('des', None),
             appmsg.get('thumburl', None),
-            appmsg.get('url', None)
+            appmsg.get('url', None),
+            True
         ]
         self.wechat_raw_link_msg(msg, *base_data)
+
+    @wechat_msg_meta
+    def wechat_raw_link_msg(self, msg, title, description, image, url, disable_web_page_preview=False):
+        mobj = EFBMsg(self)
+        if url:
+            mobj.type = MsgType.Link
+            mobj.attributes = {
+                'title': title,
+                'description': description,
+                'image': image,
+                'url': url,
+                'disable_web_page_preview': disable_web_page_preview
+            }
+        else:
+            mobj.type = MsgType.Text
+            mobj.text = "%s\n%s" % (title, description)
+            if image:
+                mobj.text += "\n\n%s" % image
+        return mobj
 
     @lru_cache(maxsize=128)
     def search_user(self, UserName=None, uid=None, uin=None, name=None, ActualUserName=None, refresh=False):
