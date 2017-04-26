@@ -5,6 +5,7 @@ import logging
 import argparse
 import sys
 import signal
+import urllib3.contrib.pyopenssl
 from channel import EFBChannel
 
 if sys.version_info.major < 3:
@@ -127,6 +128,8 @@ else:
     if getattr(args, "log", None):
         LOG = args.log
         set_log_file(LOG)
+
+    urllib3.contrib.pyopenssl.inject_into_urllib3()
 
     init()
     poll()
