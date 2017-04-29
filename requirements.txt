@@ -7,5 +7,4 @@ xmltodict
 Pillow
 python_magic
 -e git+https://github.com/RoyXiang/ItChat.git@ef76afb#egg=itchat==1.2.33
-python-daemon
 pyqrcode
