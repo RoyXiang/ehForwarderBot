@@ -50,8 +50,8 @@ def wechat_msg_meta(func):
                 logger.debug("search_user")
                 member = self.search_user(UserName=msg['FromUserName'], ActualUserName=msg['ActualUserName'])[0]['MemberList'][0]
                 logger.debug("search_user.done")
-                if msg["isAt"]:
-                    name = msg["atFlag"].lstrip('@')
+                if msg["IsAt"]:
+                    name = msg["AtFlag"].lstrip('@')
                     mobj.target = {
                         "type": TargetType.Member,
                         "target": {
