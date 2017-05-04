@@ -133,9 +133,9 @@ class WeChatChannel(EFBChannel):
         itchat.set_logging(loggingLevel=logging.getLogger().level, showOnCmd=False)
         self.itchat_msg_register()
         with mutex:
-            self.itchat.auto_login(enableCmdQR=2,
-                                   hotReload=True,
+            self.itchat.auto_login(hotReload=True,
                                    statusStorageDir="storage/%s.pkl" % self.channel_id,
+                                   loginCallback=self.login_callback,
                                    exitCallback=self.exit_callback,
                                    qrCallback=self.console_qr_code)
         mimetypes.init()
@@ -144,6 +144,9 @@ class WeChatChannel(EFBChannel):
     #
     # Utilities
     #
+
+    def login_callback(self):
+        self.itchat.dump_login_status("storage/%s.pkl" % self.channel_id)
 
     def console_qr_code(self, uuid, status, qrcode):
         status = int(status)
@@ -389,9 +392,6 @@ class WeChatChannel(EFBChannel):
             else:
                 self.done_reauth.wait()
                 self.done_reauth.clear()
-
-        if self.itchat.useHotReload:
-            self.itchat.dump_login_status("storage/%s.pkl" % self.channel_id)
 
         self.itchat.alive = False
         self.logger.debug("%s (%s) gracefully stopped.", self.channel_name, self.channel_id)
@@ -836,7 +836,6 @@ class WeChatChannel(EFBChannel):
                 "Usage: {function_name}")
     def force_log_out(self, param=""):
         self.itchat.logout()
-        self.reauth()
         return "Done."
 
     # Command functions
@@ -850,9 +849,9 @@ class WeChatChannel(EFBChannel):
         def reauth_thread(self, qr_reload):
             qr_callback = getattr(self, qr_reload, self.master_qr_code)
             with self.mutex:
-                self.itchat.auto_login(enableCmdQR=2,
-                                       hotReload=True,
+                self.itchat.auto_login(hotReload=True,
                                        statusStorageDir="storage/%s.pkl" % self.channel_id,
+                                       loginCallback=self.login_callback,
                                        exitCallback=self.exit_callback,
                                        qrCallback=qr_callback)
                 self.done_reauth.set()
