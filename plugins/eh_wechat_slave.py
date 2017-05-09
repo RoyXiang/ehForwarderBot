@@ -146,7 +146,7 @@ class WeChatChannel(EFBChannel):
     #
 
     def login_callback(self):
-        self.itchat.dump_login_status("storage/%s.pkl" % self.channel_id)
+        self.itchat.dump_login_status(self.itchat.hotReloadDir)
 
     def console_qr_code(self, uuid, status, qrcode):
         status = int(status)
