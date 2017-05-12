@@ -33,10 +33,10 @@ class WechatExChannel(WeChatChannel):
             self.logger.debug('get_uid, return False')
             return False
         data = {
-            'nickname': r[0]['NickName'],
-            'alias': r[0]['RemarkName'],
-            'account': r[0]['Alias'],
-            'uin': r[0]['Uin']
+            'nickname': r[0].get('NickName', ''),
+            'alias': r[0].get('RemarkName', ''),
+            'account': r[0].get('Alias', ''),
+            'uin': r[0].get('Uin', '')
         }
         return self.encode_uid(data)
 
