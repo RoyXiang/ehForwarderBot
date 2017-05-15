@@ -1,0 +1,7 @@
+certifi
+future>=0.15.2
+pypng
+pyqrcode
+requests[security]
+urllib3==1.20
+w3lib==1.17.0
