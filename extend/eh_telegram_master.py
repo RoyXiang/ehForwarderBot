@@ -22,6 +22,7 @@ class TelegramExChannel(TelegramChannel):
             except:
                 pass
         super().process_msg(msg)
+        self.timeout_count = 0
 
     def polling_from_tg(self):
         webhook_url = self._flag('webhook_url', '')
