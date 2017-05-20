@@ -7,10 +7,8 @@ import xmltodict
 from channel import EFBMsg, MsgType
 from channelExceptions import EFBMessageError
 from functools import lru_cache
-from moviepy.editor import VideoFileClip
 from PIL import Image
 from plugins.eh_wechat_slave import WeChatChannel, wechat_msg_meta
-from pydub import AudioSegment
 
 
 class WechatExChannel(WeChatChannel):
@@ -148,19 +146,4 @@ class WechatExChannel(WeChatChannel):
             # update message properties
             msg.mime = 'image/gif'
             msg.path = path
-        elif msg.type == MsgType.Audio:
-            filename = msg.filename or os.path.basename(msg.path)
-            path = os.path.splitext(os.path.join('storage', self.channel_id, filename))[0] + '.mp3'
-            if msg.mime.startswith('video/'):
-                clip = VideoFileClip(msg.path)
-                clip.audio.write_audio_file(path)
-            else:
-                sound = AudioSegment.from_file(msg.path)
-                sound.export(path, format='mp3')
-            os.remove(msg.path)
-            # update message properties
-            msg.type = MsgType.File
-            msg.mime = 'audio/mpeg'
-            msg.path = path
-            msg.filename = os.path.basename(path)
         super().send_message(msg)

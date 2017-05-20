@@ -118,7 +118,7 @@ class WeChatChannel(EFBChannel):
     channel_type = ChannelType.Slave
 
     supported_message_types = {MsgType.Text, MsgType.Sticker, MsgType.Image,
-                               MsgType.File, MsgType.Video, MsgType.Link, MsgType.Audio}
+                               MsgType.File, MsgType.Video, MsgType.Link}
     logger = logging.getLogger("plugins.%s.WeChatChannel" % channel_id)
     qr_uuid = ""
     done_reauth = threading.Event()
@@ -698,7 +698,7 @@ class WeChatChannel(EFBChannel):
                     os.remove('.'.join(msg.path.split('.')[:-1]))
                 except FileNotFoundError:
                     pass
-        elif msg.type in (MsgType.File, MsgType.Audio):
+        elif msg.type == MsgType.File:
             self.logger.info("Sending %s to WeChat\nFileName: %s\nPath: %s\nFilename: %s", msg.type, msg.text, msg.path,
                              msg.filename)
             r = self._itchat_send_file(msg.path, toUserName=UserName, filename=msg.filename)
