@@ -20,24 +20,6 @@ class WechatExChannel(WeChatChannel):
         mimetypes.init()
         self.logger.info("EWS Inited!!!\n---")
 
-    def get_uid(self, UserName=None, NickName=None, alias=None, Uin=None):
-        if not UserName:
-            self.logger.error('No name provided.')
-            return False
-        elif not str(UserName).startswith('@'):
-            return UserName
-        r = self.search_user(UserName=UserName)
-        if not r:
-            self.logger.debug('get_uid, return False')
-            return False
-        data = {
-            'nickname': r[0].get('NickName', ''),
-            'alias': r[0].get('RemarkName', ''),
-            'account': r[0].get('Alias', ''),
-            'uin': r[0].get('Uin', '')
-        }
-        return self.encode_uid(data)
-
     def poll(self):
         self.reauth()
         super().poll()
