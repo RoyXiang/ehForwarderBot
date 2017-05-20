@@ -112,15 +112,7 @@ class WechatExChannel(WeChatChannel):
         return super().reauth(command)
 
     def send_message(self, msg):
-        if msg.type in [MsgType.Text, MsgType.Link] and msg.target:
-            UserName = self.get_UserName(msg.destination['uid'])
-            if not UserName:
-                raise EFBChatNotFound
-            if not str(UserName).startswith('@@'):
-                msg.target = None
-            else:
-                msg.target['type'] = TargetType.Member
-        elif msg.type == MsgType.Image and msg.mime == 'image/gif':
+        if msg.type == MsgType.Image and msg.mime == 'image/gif':
             if os.path.isfile(msg.path) and os.path.getsize(msg.path) <= self.max_image_size:
                 super().send_message(msg)
                 return

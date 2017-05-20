@@ -653,16 +653,16 @@ class WeChatChannel(EFBChannel):
                         tgt_text = qt_txt[:maxl]
                         if len(qt_txt) >= maxl:
                             tgt_text += "…"
-                        tgt_text = "「%s」" % tgt_text
+                        tgt_text = "「%s」\n\n" % tgt_text
                     elif maxl < 0:
-                        tgt_text = "「%s」" % qt_txt
+                        tgt_text = "「%s」\n\n" % qt_txt
                     else:
                         tgt_text = ""
                     if UserName.startswith("@@") and msg.target['target'].member:
                         tgt_alias = "@%s\u2005 " % msg.target['target'].member['alias']
                     else:
                         tgt_alias = ""
-                    msg.text = "%s%s\n\n%s" % (tgt_alias, tgt_text, msg.text)
+                    msg.text = "%s%s%s" % (tgt_alias, tgt_text, msg.text)
             r = self._itchat_send_msg(msg.text, UserName)
         elif msg.type in [MsgType.Image, MsgType.Sticker]:
             self.logger.info("Image/Sticker %s, %s", msg.type, msg.path)
