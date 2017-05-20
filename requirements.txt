@@ -2,7 +2,7 @@ moviepy
 peewee
 pydub
 requests
--e git+https://github.com/RoyXiang/python-telegram-bot.git@0a13310#egg=python-telegram-bot==5.3.1
+-e git+https://github.com/RoyXiang/python-telegram-bot.git@f2f30b7#egg=python-telegram-bot==6.0.0
 xmltodict
 Pillow
 python_magic
