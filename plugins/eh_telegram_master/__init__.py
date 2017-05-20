@@ -1349,7 +1349,7 @@ class TelegramChannel(EFBChannel):
         finally:
             msg_log_d = {
                 "master_msg_id": "%s.%s" % (update.message.chat_id, update.message.message_id),
-                "text": m.text,
+                "text": m.text or "",
                 "slave_origin_uid": "%s.%s" % (m.destination['channel'], m.destination['uid']),
                 "slave_origin_display_name": "__chat__",
                 "msg_type": m.type,
