@@ -34,11 +34,20 @@ def wechat_msg_meta(func):
         logger.debug("me, %s", me)
         if me:
             msg['FromUserName'], msg['ToUserName'] = msg['ToUserName'], msg['FromUserName']
-        FromUser = self.search_user(UserName=msg['FromUserName']) or \
-                   self.search_user(UserName=msg['FromUserName'], refresh=True) or \
-                   [{"NickName": "Chat not found. (UE01)", "RemarkName": "Chat not found. (UE01)", "Uin": 0}]
-        FromUser = FromUser[0]
+        FromUser = msg['User']
         logger.debug("From user, %s", FromUser)
+        # set the origin of incoming message
+        NickName = FromUser.get('NickName', '') or FromUser['UserName']
+        RemarkName = FromUser.get('RemarkName', '') or NickName
+        mobj.origin = {
+            'name': self._wechat_html_unescape(NickName),
+            'alias': self._wechat_html_unescape(RemarkName),
+            'uid': self.get_uid(UserName=FromUser['UserName'],
+                                NickName=NickName,
+                                alias=RemarkName,
+                                Uin=FromUser.get('Uin', None))
+        }
+        # set the source of incoming message
         if isGroupChat:
             logger.debug("Group chat")
             if me:
@@ -62,14 +71,6 @@ def wechat_msg_meta(func):
                     }
             mobj.source = MsgSource.Group
             logger.debug("Group. member: %s", member)
-            mobj.origin = {
-                'name': html.unescape(FromUser['NickName']),
-                'alias': html.unescape(FromUser['RemarkName'] or FromUser['NickName']),
-                'uid': self.get_uid(UserName=msg.get('FromUserName', None),
-                                    NickName=self._wechat_html_unescape(FromUser.get('NickName', "s")),
-                                    alias=self._wechat_html_unescape(FromUser.get('RemarkName', "s")),
-                                    Uin=FromUser.get('Uin', None))
-            }
             mobj.member = {
                 'name': self._wechat_html_unescape(member['NickName']),
                 'alias': self._wechat_html_unescape(member['DisplayName']),
@@ -84,14 +85,7 @@ def wechat_msg_meta(func):
                 mobj.text = mobj.text or ""
                 mobj.text = "You: " + mobj.text
             mobj.source = MsgSource.User
-            mobj.origin = {
-                'name': self._wechat_html_unescape(FromUser['NickName']),
-                'alias': self._wechat_html_unescape(FromUser['RemarkName'] or FromUser['NickName']),
-                'uid': self.get_uid(UserName=msg.get('FromUserName', None),
-                                    NickName=self._wechat_html_unescape(FromUser.get('NickName', "")),
-                                    alias=self._wechat_html_unescape(FromUser.get('RemarkName', "")),
-                                    Uin=FromUser.get('Uin', None))
-            }
+        # set the destination of incoming message
         mobj.destination = {
             'name': self._wechat_html_unescape(self.itchat.loginInfo['User']['NickName']),
             'alias': self._wechat_html_unescape(self.itchat.loginInfo['User']['NickName']),
@@ -135,7 +129,6 @@ class WeChatChannel(EFBChannel):
         with mutex:
             self.itchat.auto_login(hotReload=True,
                                    statusStorageDir="storage/%s.pkl" % self.channel_id,
-                                   loginCallback=self.login_callback,
                                    exitCallback=self.exit_callback,
                                    qrCallback=self.console_qr_code)
         mimetypes.init()
@@ -144,9 +137,6 @@ class WeChatChannel(EFBChannel):
     #
     # Utilities
     #
-
-    def login_callback(self):
-        self.itchat.dump_login_status(self.itchat.hotReloadDir)
 
     def console_qr_code(self, uuid, status, qrcode):
         status = int(status)
@@ -343,13 +333,11 @@ class WeChatChannel(EFBChannel):
             return [{"UserName": sys_chat_id,
                      "NickName": "System (%s)" % sys_chat_id,
                      "RemarkName": "System (%s)" % sys_chat_id,
-                     "Alias": sys_chat_id,
                      "Uin": sys_chat_id}]
 
         for i in self.itchat.get_friends(refresh) + self.itchat.get_mps(refresh):
             data = {"nickname": self._wechat_html_unescape(i.get('NickName', None)),
                     "alias": self._wechat_html_unescape(i.get("RemarkName", None)),
-                    "account": i.get("Alias", None),
                     "uin": i.get("Uin", None)}
             if self.encode_uid(data) == uid or \
                             str(i.get('UserName', '')) == UserName or \
@@ -364,7 +352,6 @@ class WeChatChannel(EFBChannel):
                 i = self.itchat.update_chatroom(i.get('UserName', ''))
             data = {"nickname": self._wechat_html_unescape(i.get('NickName', None)),
                     "alias": self._wechat_html_unescape(i.get("RemarkName", None)),
-                    "account": i.get("Alias", None),
                     "uin": i.get("Uin", None)}
             if self.encode_uid(data) == uid or \
                             str(i.get('Uin', '')) == uin or \
@@ -851,7 +838,6 @@ class WeChatChannel(EFBChannel):
             with self.mutex:
                 self.itchat.auto_login(hotReload=True,
                                        statusStorageDir="storage/%s.pkl" % self.channel_id,
-                                       loginCallback=self.login_callback,
                                        exitCallback=self.exit_callback,
                                        qrCallback=qr_callback)
                 self.done_reauth.set()

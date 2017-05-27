@@ -1,7 +1,6 @@
--e git+https://github.com/python-telegram-bot/urllib3.git@4b076ee#egg=urllib3==dev
 certifi
 future>=0.15.2
 pypng
 pyqrcode
-requests[security]
+requests[security]>=2.16.0
 w3lib==1.17.0

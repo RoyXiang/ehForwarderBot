@@ -22,8 +22,6 @@ RUN set -ex \
         && pip3 install --upgrade setuptools pip \
         && pip3 install -r /root/ehForwarderBot/requirements-pre.txt \
         && pip3 install -r /root/ehForwarderBot/requirements.txt \
-        && ln -sf "$(python3 -c 'import requests; print(requests.__path__[0])')/cacert.pem" \
-                  "$(python3 -c 'import certifi; print(certifi.__path__[0])')/cacert.pem" \
         && rm -rf /root/.cache \
         && apk del .build-deps
 
