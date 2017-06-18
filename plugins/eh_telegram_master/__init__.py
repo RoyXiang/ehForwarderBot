@@ -405,7 +405,7 @@ class TelegramChannel(EFBChannel):
                     pydub.AudioSegment.from_file(msg.file).export("%s.ogg" % msg.path,
                                                                   format="ogg",
                                                                   codec="libopus",
-                                                                  bitrate="65536")
+                                                                  parameters=["-vbr", "on"])
                     ogg_file = open("%s.ogg" % msg.path, 'rb')
                     tg_msg = self.bot.bot.sendVoice(tg_dest, ogg_file, caption=msg_template + msg.text)
                     os.remove("%s.ogg" % msg.path)
