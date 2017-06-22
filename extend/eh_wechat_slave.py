@@ -25,19 +25,19 @@ class WechatExChannel(WeChatChannel):
         super().poll()
 
     def itchat_msg_register(self):
-        self.itchat.msg_register(['Text'], isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_text_msg)
-        self.itchat.msg_register(['Sharing'], isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_link_msg)
-        self.itchat.msg_register(['Picture'], isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_picture_msg)
-        self.itchat.msg_register(['Attachment'], isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_file_msg)
-        self.itchat.msg_register(['Recording'], isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_voice_msg)
-        self.itchat.msg_register(['Map'], isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_location_msg)
-        self.itchat.msg_register(['Video'], isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_video_msg)
-        self.itchat.msg_register(['Card'], isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_card_msg)
-        self.itchat.msg_register(['Friends'], isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_friend_msg)
-        self.itchat.msg_register(['Useless', 'Note'], isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_system_msg)
-        self.itchat.msg_register(['Sharing'], isFriendChat=False, isMpChat=True, isGroupChat=False)(self.wechat_mp_msg)
+        self.itchat.msg_register(itchat.content.TEXT, isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_text_msg)
+        self.itchat.msg_register(itchat.content.SHARING, isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_link_msg)
+        self.itchat.msg_register(itchat.content.SHARING, isFriendChat=False, isMpChat=True, isGroupChat=False)(self.wechat_mp_msg)
+        self.itchat.msg_register(itchat.content.PICTURE, isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_picture_msg)
+        self.itchat.msg_register(itchat.content.ATTACHMENT, isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_file_msg)
+        self.itchat.msg_register(itchat.content.RECORDING, isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_voice_msg)
+        self.itchat.msg_register(itchat.content.MAP, isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_location_msg)
+        self.itchat.msg_register(itchat.content.VIDEO, isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_video_msg)
+        self.itchat.msg_register(itchat.content.CARD, isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_card_msg)
+        self.itchat.msg_register(itchat.content.FRIENDS, isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_friend_msg)
+        self.itchat.msg_register(itchat.content.NOTE, isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_system_msg)
 
-        @self.itchat.msg_register(["System"], isFriendChat=True, isMpChat=False, isGroupChat=True)
+        @self.itchat.msg_register(itchat.content.SYSTEM, isFriendChat=True, isMpChat=False, isGroupChat=True)
         def wc_msg_system_log(msg):
             self.logger.debug("WeChat \"System\" message:\n%s", repr(msg))
 

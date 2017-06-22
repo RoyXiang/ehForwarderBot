@@ -2,9 +2,9 @@ moviepy
 peewee
 pydub
 requests
--e git+https://github.com/RoyXiang/python-telegram-bot.git@3516113#egg=python-telegram-bot==6.0.1
+-e git+https://github.com/RoyXiang/python-telegram-bot.git@f08a212#egg=python-telegram-bot==6.1.0
 xmltodict
 Pillow
 python_magic
--e git+https://github.com/RoyXiang/ItChat.git@078e594#egg=itchat==1.3.6
+-e git+https://github.com/RoyXiang/ItChat.git@88e37e9#egg=itchat==1.3.7
 pyqrcode
