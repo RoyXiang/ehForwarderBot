@@ -41,7 +41,6 @@ class WechatExChannel(WeChatChannel):
         def wc_msg_system_log(msg):
             self.logger.debug("WeChat \"System\" message:\n%s", repr(msg))
 
-    @wechat_msg_meta
     def wechat_mp_msg(self, msg):
         # parse XML
         itchat.utils.emoji_formatter(msg, 'Content')
@@ -53,14 +52,13 @@ class WechatExChannel(WeChatChannel):
         if appmsg.get('thumburl', None) or (isinstance(extra_links, list) and len(extra_links) > 0):
             return
         # send message
-        base_data = [
-            appmsg.get('title', None),
-            appmsg.get('des', None),
-            appmsg.get('thumburl', None),
-            appmsg.get('url', None),
-            True
-        ]
-        self.wechat_raw_link_msg(msg, *base_data)
+        title = appmsg.get('title', None)
+        if '过期' in title:
+            return
+        description = appmsg.get('des', None)
+        thumburl = appmsg.get('thumburl', None)
+        url = appmsg.get('url', None)
+        self.wechat_raw_link_msg(msg, title, description, thumburl, url, disable_web_page_preview=True)
 
     @wechat_msg_meta
     def wechat_raw_link_msg(self, msg, title, description, image, url, disable_web_page_preview=False):

@@ -428,7 +428,6 @@ class WeChatChannel(EFBChannel):
         mobj.type = MsgType.Location
         return mobj
 
-    @wechat_msg_meta
     def wechat_link_msg(self, msg):
         # self.logger.info("---\nNew Link msg, %s", msg)
         # # initiate object
