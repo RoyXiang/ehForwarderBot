@@ -92,8 +92,7 @@ class WechatExChannel(WeChatChannel):
     def send_message(self, msg):
         if msg.type == MsgType.Image and msg.mime == 'image/gif':
             if os.path.isfile(msg.path) and os.path.getsize(msg.path) <= self.max_image_size:
-                super().send_message(msg)
-                return
+                return super().send_message(msg)
             mp4 = msg.path.rsplit('.', 1)[0]
             if os.path.isfile(mp4):
                 try:
@@ -126,4 +125,4 @@ class WechatExChannel(WeChatChannel):
             # update message properties
             msg.mime = 'image/gif'
             msg.path = path
-        super().send_message(msg)
+        return super().send_message(msg)
