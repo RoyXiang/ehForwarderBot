@@ -17,7 +17,6 @@ class WechatExChannel(WeChatChannel):
         self.itchat = itchat.new_instance()
         itchat.set_logging(loggingLevel=logging.getLogger().level, showOnCmd=False)
         self.itchat_msg_register()
-        mimetypes.init()
         self.logger.info("EWS Inited!!!\n---")
 
     def poll(self):

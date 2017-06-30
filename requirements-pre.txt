@@ -2,6 +2,6 @@ certifi
 future>=0.15.2
 pypng
 pyqrcode
-requests[security]>=2.16.0
+requests>=2.16.0
 retrying
 w3lib==1.17.0

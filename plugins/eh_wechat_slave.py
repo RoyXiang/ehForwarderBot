@@ -131,7 +131,6 @@ class WeChatChannel(EFBChannel):
                                    statusStorageDir="storage/%s.pkl" % self.channel_id,
                                    exitCallback=self.exit_callback,
                                    qrCallback=self.console_qr_code)
-        mimetypes.init()
         self.logger.info("EWS Inited!!!\n---")
 
     #
