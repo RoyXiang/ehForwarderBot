@@ -1,7 +1,5 @@
-certifi
-future>=0.15.2
+future>=0.16.0
 pypng
 pyqrcode
 requests>=2.16.0
 retrying
-w3lib==1.17.0

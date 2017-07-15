@@ -32,6 +32,6 @@ class TelegramExChannel(TelegramChannel):
             if not webhook_url.endswith('/'):
                 webhook_url += '/'
             webhook_url += token
-            self.bot.bot.setWebhook(webhook_url=webhook_url)
+            self.bot.bot.set_webhook(url=webhook_url)
         else:
             self.bot.start_polling(timeout=10)
