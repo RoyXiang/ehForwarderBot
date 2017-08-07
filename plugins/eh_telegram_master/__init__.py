@@ -412,10 +412,10 @@ class TelegramChannel(EFBChannel):
             elif msg.type == MsgType.Location:
                 self.bot.bot.send_chat_action(tg_dest, telegram.ChatAction.FIND_LOCATION)
                 self.logger.info("---\nsending venue\nlat: %s, long: %s\ntitle: %s\naddr: %s",
-                                 msg.attributes['latitude'], msg.attributes['longitude'], msg.text, msg_template + "")
+                                 msg.attributes['latitude'], msg.attributes['longitude'], msg.text, msg.attributes['address'])
                 tg_msg = self.bot.bot.sendVenue(tg_dest, latitude=msg.attributes['latitude'],
                                                 longitude=msg.attributes['longitude'], title=msg.text,
-                                                address=msg_template + "")
+                                                address=msg.attributes['address'])
             elif msg.type == MsgType.Video:
                 self.bot.bot.send_chat_action(tg_dest, telegram.ChatAction.UPLOAD_VIDEO)
                 if os.stat(msg.path).st_size == 0:

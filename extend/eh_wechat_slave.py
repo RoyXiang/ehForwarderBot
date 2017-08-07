@@ -9,6 +9,17 @@ from channelExceptions import EFBMessageError
 from functools import lru_cache
 from PIL import Image
 from plugins.eh_wechat_slave import WeChatChannel, wechat_msg_meta
+from xml.parsers.expat import ExpatError
+
+
+def wechat_xml_msg(func):
+    def wrap_func(self, msg, *args, **kwargs):
+        try:
+            func(self, msg, *args, **kwargs)
+        except ExpatError:
+            msg['Text'] = '收到一条网页版微信暂不支持的消息类型，请在手机上查看'
+            self.wechat_system_msg(msg)
+    return wrap_func
 
 
 class WechatExChannel(WeChatChannel):
@@ -40,6 +51,15 @@ class WechatExChannel(WeChatChannel):
         def wc_msg_system_log(msg):
             self.logger.debug("WeChat \"System\" message:\n%s", repr(msg))
 
+    @wechat_xml_msg
+    def wechat_newsapp_msg(self, msg):
+        super().wechat_newsapp_msg(msg)
+
+    @wechat_xml_msg
+    def wechat_link_msg(self, msg):
+        super().wechat_link_msg(msg)
+
+    @wechat_xml_msg
     def wechat_mp_msg(self, msg):
         # parse XML
         itchat.utils.emoji_formatter(msg, 'Content')
@@ -76,6 +96,19 @@ class WechatExChannel(WeChatChannel):
             mobj.text = "%s\n%s" % (title, description)
             if image:
                 mobj.text += "\n\n%s" % image
+        return mobj
+
+    @wechat_msg_meta
+    def wechat_location_msg(self, msg):
+        mobj = EFBMsg(self)
+        mobj.text = '位置消息'
+        loc = re.search('=-?([0-9.]+),-?([0-9.]+)', msg['Url']).groups()
+        mobj.attributes = {
+            'longitude': float(loc[1]),
+            'latitude': float(loc[0]),
+            'address': msg['Content'].split('\n')[0][:-1]
+        }
+        mobj.type = MsgType.Location
         return mobj
 
     @lru_cache(maxsize=128)
