@@ -22,7 +22,15 @@ RUN set -ex \
         && pip3 install -r /opt/ehForwarderBot/requirements-pre.txt \
         && pip3 install -r /opt/ehForwarderBot/requirements.txt \
         && rm -rf /root/.cache \
-        && apk del .build-deps
+        && apk del .build-deps \
+        && mkdir /data \
+        && ln -sf /data/config.py /opt/ehForwarderBot/config.py \
+        && ln -sf /data/tgdata.db /opt/ehForwarderBot/plugins/eh_telegram_master/tgdata.db \
+        && chown -R 32767:32767 /opt/ehForwarderBot/storage
+
+EXPOSE 5000
+
+USER 32767:32767
 
 WORKDIR /opt/ehForwarderBot
 
