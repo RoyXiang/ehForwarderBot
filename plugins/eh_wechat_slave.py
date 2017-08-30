@@ -119,12 +119,6 @@ class WeChatChannel(EFBChannel):
         self.itchat = itchat.new_instance()
         itchat.set_logging(loggingLevel=logging.getLogger().level, showOnCmd=False)
         self.itchat_msg_register()
-        with mutex:
-            self.itchat.auto_login(enableCmdQR=2,
-                                   hotReload=True,
-                                   statusStorageDir="storage/%s.pkl" % self.channel_id,
-                                   exitCallback=self.exit_callback,
-                                   qrCallback=self.console_qr_code)
         mimetypes.init(files=["mimetypes"])
         self.logger.info("EWS Inited!!!\n---")
 
@@ -371,6 +365,13 @@ class WeChatChannel(EFBChannel):
         return result
 
     def poll(self):
+        with self.mutex:
+            self.itchat.auto_login(enableCmdQR=2,
+                                   hotReload=True,
+                                   statusStorageDir="storage/%s.pkl" % self.channel_id,
+                                   exitCallback=self.exit_callback,
+                                   qrCallback=self.master_qr_code)
+
         while not self.stop_polling:
             if self.itchat.alive:
                 self.itchat.configured_reply()
