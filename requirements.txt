@@ -1,10 +1,10 @@
 -e git+https://github.com/RoyXiang/ItChat.git@1b6f6a1#egg=itchat
--e git+https://github.com/RoyXiang/python-telegram-bot.git@e2e05fc#egg=python-telegram-bot
 moviepy>=0.2.3.1
 peewee
 Pillow>=4.0.0
 pydub
 pyqrcode
 python-magic
+python-telegram-bot>=7.0.1
 requests
 xmltodict
