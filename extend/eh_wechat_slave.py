@@ -35,14 +35,14 @@ class WechatExChannel(WeChatChannel):
         super().poll()
 
     def itchat_msg_register(self):
-        self.itchat.msg_register(itchat.content.TEXT, isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_text_msg)
+        self.itchat.msg_register(itchat.content.TEXT, isFriendChat=True, isMpChat=True, isGroupChat=True)(self.wechat_text_msg)
         self.itchat.msg_register(itchat.content.SHARING, isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_link_msg)
         self.itchat.msg_register(itchat.content.SHARING, isFriendChat=False, isMpChat=True, isGroupChat=False)(self.wechat_mp_msg)
-        self.itchat.msg_register(itchat.content.PICTURE, isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_picture_msg)
-        self.itchat.msg_register(itchat.content.ATTACHMENT, isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_file_msg)
-        self.itchat.msg_register(itchat.content.RECORDING, isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_voice_msg)
-        self.itchat.msg_register(itchat.content.MAP, isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_location_msg)
-        self.itchat.msg_register(itchat.content.VIDEO, isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_video_msg)
+        self.itchat.msg_register(itchat.content.PICTURE, isFriendChat=True, isMpChat=True, isGroupChat=True)(self.wechat_picture_msg)
+        self.itchat.msg_register(itchat.content.ATTACHMENT, isFriendChat=True, isMpChat=True, isGroupChat=True)(self.wechat_file_msg)
+        self.itchat.msg_register(itchat.content.RECORDING, isFriendChat=True, isMpChat=True, isGroupChat=True)(self.wechat_voice_msg)
+        self.itchat.msg_register(itchat.content.MAP, isFriendChat=True, isMpChat=True, isGroupChat=True)(self.wechat_location_msg)
+        self.itchat.msg_register(itchat.content.VIDEO, isFriendChat=True, isMpChat=True, isGroupChat=True)(self.wechat_video_msg)
         self.itchat.msg_register(itchat.content.CARD, isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_card_msg)
         self.itchat.msg_register(itchat.content.FRIENDS, isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_friend_msg)
         self.itchat.msg_register(itchat.content.NOTE, isFriendChat=True, isMpChat=False, isGroupChat=True)(self.wechat_system_msg)
@@ -72,7 +72,7 @@ class WechatExChannel(WeChatChannel):
             return
         # send message
         title = appmsg.get('title', None)
-        if '过期' in title:
+        if title.startswith('优惠券') or title in ('积分变动提醒', '会员省钱账单提醒', '流量到帐通知'):
             return
         description = appmsg.get('des', None)
         thumburl = appmsg.get('thumburl', None)
