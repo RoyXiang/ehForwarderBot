@@ -1,4 +1,4 @@
--e git+https://github.com/RoyXiang/ItChat.git@1b6f6a1#egg=itchat
+-e git+https://github.com/RoyXiang/ItChat.git@07464a9#egg=itchat
 moviepy>=0.2.3.1
 peewee
 Pillow>=4.0.0
