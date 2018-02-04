@@ -72,7 +72,12 @@ class WechatExChannel(WeChatChannel):
             return
         # send message
         title = appmsg.get('title', None)
-        if title.startswith('优惠券') or title in ('积分变动提醒', '会员省钱账单提醒', '流量到帐通知'):
+        if (
+            title.startswith('优惠券')
+            or title.endswith('变动提醒')
+            or title.endswith('过期提醒')
+            or title in ('会员省钱账单提醒', '流量到帐通知', '你收到一个红包')
+        ):
             return
         description = appmsg.get('des', None)
         thumburl = appmsg.get('thumburl', None)
