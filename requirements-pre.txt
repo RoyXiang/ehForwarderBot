@@ -1,3 +1,4 @@
+olefile
 pypng
 pyqrcode
 requests>=2.16.0

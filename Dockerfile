@@ -1,4 +1,4 @@
-FROM alpine
+FROM alpine:3.7
 MAINTAINER Roy Xiang <developer@royxiang.me>
 
 ENV LANG C.UTF-8
@@ -13,6 +13,8 @@ RUN set -ex \
                 python3 \
                 py3-numpy \
                 py3-pillow
+
+ENV FFMPEG_BINARY /usr/bin/ffmpeg
 
 COPY . /opt/ehForwarderBot
 
