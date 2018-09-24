@@ -1,4 +1,4 @@
-FROM alpine:3.7
+FROM alpine:3.8
 MAINTAINER Roy Xiang <developer@royxiang.me>
 
 ENV LANG C.UTF-8
@@ -11,6 +11,7 @@ RUN set -ex \
                 libmagic \
                 mailcap \
                 python3 \
+                py3-cryptography \
                 py3-numpy \
                 py3-pillow
 
