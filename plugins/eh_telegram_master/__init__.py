@@ -280,7 +280,6 @@ class TelegramChannel(EFBChannel):
             self.logger.debug("%s, process_msg_step_2", xid)
             append_last_msg = False
             if msg.type == MsgType.Text:
-                self.bot.bot.send_chat_action(tg_dest, telegram.ChatAction.TYPING)
                 parse_mode = "HTML" if self._flag("text_as_html", False) else None
                 if tg_chat_assoced:
                     last_msg = db.get_last_msg_from_chat(tg_dest)
@@ -323,7 +322,6 @@ class TelegramChannel(EFBChannel):
                     self.logger.debug("%s, process_msg_step_3_0_4, tg_msg = %s", xid, tg_msg)
                 self.logger.debug("%s, process_msg_step_3_1", xid)
             elif msg.type == MsgType.Link:
-                self.bot.bot.send_chat_action(tg_dest, telegram.ChatAction.TYPING)
                 thumbnail = urllib.parse.quote(msg.attributes["image"] or "", safe="?=&#:/")
                 thumbnail = "<a href=\"%s\">🔗</a>" % thumbnail if thumbnail else "🔗"
                 text = "%s <a href=\"%s\">%s</a>\n%s" % \
@@ -347,7 +345,6 @@ class TelegramChannel(EFBChannel):
                         text += "\n\n" + msg.text
                     tg_msg = self.bot.bot.send_message(tg_dest, text=msg_template + msg.text, disable_web_page_preview=disable_web_page_preview)
             elif msg.type in [MsgType.Image, MsgType.Sticker]:
-                self.bot.bot.send_chat_action(tg_dest, telegram.ChatAction.UPLOAD_PHOTO)
                 self.logger.debug("%s, process_msg_step_3_2", xid)
                 self.logger.debug("Received %s\nPath: %s\nMIME: %s", msg.type, msg.path, msg.mime)
                 self.logger.debug("Path: %s\nSize: %s", msg.path, os.stat(msg.path).st_size)
@@ -371,7 +368,6 @@ class TelegramChannel(EFBChannel):
                     os.remove(msg.path)
                 self.logger.debug("%s, process_msg_step_3_3", xid)
             elif msg.type == MsgType.File:
-                self.bot.bot.send_chat_action(tg_dest, telegram.ChatAction.UPLOAD_DOCUMENT)
                 if os.stat(msg.path).st_size == 0:
                     os.remove(msg.path)
                     tg_msg = self.bot.bot.send_message(tg_dest,
@@ -386,7 +382,6 @@ class TelegramChannel(EFBChannel):
                                                         filename=file_name)
                     os.remove(msg.path)
             elif msg.type == MsgType.Audio:
-                self.bot.bot.send_chat_action(tg_dest, telegram.ChatAction.RECORD_AUDIO)
                 if os.stat(msg.path).st_size == 0:
                     os.remove(msg.path)
                     return self.bot.bot.send_message(tg_dest,
@@ -410,14 +405,12 @@ class TelegramChannel(EFBChannel):
                     os.remove("%s.ogg" % msg.path)
                 os.remove(msg.path)
             elif msg.type == MsgType.Location:
-                self.bot.bot.send_chat_action(tg_dest, telegram.ChatAction.FIND_LOCATION)
                 self.logger.info("---\nsending venue\nlat: %s, long: %s\ntitle: %s\naddr: %s",
                                  msg.attributes['latitude'], msg.attributes['longitude'], msg.text, msg.attributes['address'])
                 tg_msg = self.bot.bot.sendVenue(tg_dest, latitude=msg.attributes['latitude'],
                                                 longitude=msg.attributes['longitude'], title=msg.text,
                                                 address=msg.attributes['address'])
             elif msg.type == MsgType.Video:
-                self.bot.bot.send_chat_action(tg_dest, telegram.ChatAction.UPLOAD_VIDEO)
                 if os.stat(msg.path).st_size == 0:
                     os.remove(msg.path)
                     return self.bot.bot.send_message(tg_dest, msg_template + ("Error: Empty %s recieved" % msg.type))
@@ -426,7 +419,6 @@ class TelegramChannel(EFBChannel):
                 tg_msg = self.bot.bot.sendVideo(tg_dest, msg.file, caption=msg_template + msg.text)
                 os.remove(msg.path)
             elif msg.type == MsgType.Command:
-                self.bot.bot.send_chat_action(tg_dest, telegram.ChatAction.TYPING)
                 buttons = []
                 for i, ival in enumerate(msg.attributes['commands']):
                     buttons.append([telegram.InlineKeyboardButton(ival['name'], callback_data=str(i))])
@@ -437,7 +429,6 @@ class TelegramChannel(EFBChannel):
                                                                             "text": msg_template + msg.text,
                                                                             "commands": msg.attributes['commands']}
             else:
-                self.bot.bot.send_chat_action(tg_dest, telegram.ChatAction.TYPING)
                 tg_msg = self.bot.bot.send_message(tg_dest, msg_template + "Unsupported incoming message type. (UT01)")
             self.logger.debug("%s, process_msg_step_4", xid)
             if msg.source in (MsgSource.User, MsgSource.Group):

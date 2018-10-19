@@ -74,7 +74,6 @@ class WechatExChannel(WeChatChannel):
         title = appmsg.get('title', None)
         if (
             title.startswith('优惠券')
-            or title.endswith('变动提醒')
             or title.endswith('过期提醒')
             or title in ('会员省钱账单提醒', '流量到帐通知', '你收到一个红包')
         ):
