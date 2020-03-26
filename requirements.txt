@@ -1,7 +1,7 @@
 -e git+https://github.com/RoyXiang/ItChat.git@07464a9#egg=itchat
 moviepy>=0.2.3.1
 peewee
-Pillow==4.*
+Pillow
 pydub
 pyqrcode
 python-magic
