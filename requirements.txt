@@ -1,10 +1,10 @@
 -e git+https://github.com/RoyXiang/ItChat.git@07464a9#egg=itchat
-moviepy>=0.2.3.1
+moviepy==1.0.1
 peewee
-Pillow
+Pillow==4.3.0
 pydub
 pyqrcode
 python-magic
-python-telegram-bot>=7.0.1
+python-telegram-bot==12.2.0
 requests
 xmltodict

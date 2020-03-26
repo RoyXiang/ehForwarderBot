@@ -1,5 +1,5 @@
 olefile
 pypng
 pyqrcode
-requests>=2.16.0
+requests==2.22.0
 retrying
