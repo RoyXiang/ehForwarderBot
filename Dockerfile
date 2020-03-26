@@ -1,4 +1,4 @@
-FROM alpine:3.8
+FROM alpine:latest
 MAINTAINER Roy Xiang <developer@royxiang.me>
 
 ENV LANG C.UTF-8
