@@ -29,11 +29,11 @@ RUN set -ex \
         && mkdir /data \
         && ln -sf /data/config.py /opt/ehForwarderBot/config.py \
         && ln -sf /data/tgdata.db /opt/ehForwarderBot/plugins/eh_telegram_master/tgdata.db \
-        && chown -R 32767:32767 /opt/ehForwarderBot/storage
+        && chown -R 1000:1000 /opt/ehForwarderBot/storage
 
 EXPOSE 5000
 
-USER 32767:32767
+USER 1000:1000
 
 WORKDIR /opt/ehForwarderBot
 

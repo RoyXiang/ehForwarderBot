@@ -1,0 +1,24 @@
+name: 'New Release'
+
+on:
+  push:
+    branches:
+      master
+
+jobs:
+  release:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v1.0.0
+      - name: Setup environment variables
+        env:
+          DOKKU_HOST: ${{ secrets.DOKKU_HOST }}
+        run: |
+          echo "::set-env name=HOST::$DOKKU_HOST"
+          echo "::add-mask::$DOKKU_HOST"
+      - name: Dokku deploy
+        uses: vitalyliber/dokku-github-action@v3.0
+        env:
+          PRIVATE_KEY: ${{ secrets.DOKKU_PRIVATE_KEY }}
+          PUBLIC_KEY: ${{ secrets.DOKKU_PUBLIC_KEY }}
+          PROJECT: ${{ secrets.DOKKU_PROJECT }}
