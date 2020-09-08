@@ -75,7 +75,7 @@ class WechatExChannel(WeChatChannel):
         if (
             title.startswith('优惠券')
             or title.endswith('过期提醒')
-            or title in ('会员省钱账单提醒', '流量到帐通知', '你收到一个红包')
+            or title in ('会员省钱账单提醒', '流量到帐通知', '你收到一个红包', '账户金额变动提醒')
         ):
             return
         description = appmsg.get('des', None)
