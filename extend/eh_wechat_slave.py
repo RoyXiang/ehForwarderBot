@@ -79,6 +79,8 @@ class WechatExChannel(WeChatChannel):
         ):
             return
         description = appmsg.get('des', None)
+        if description.startswith('昨日记账日报'):
+            return
         thumburl = appmsg.get('thumburl', None)
         url = appmsg.get('url', None)
         self.wechat_raw_link_msg(msg, title, description, thumburl, url, disable_web_page_preview=True)
